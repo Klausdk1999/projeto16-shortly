@@ -19,6 +19,30 @@ export async function postURL(req, res) {
       return res.status(500).send(error);
     }
 } 
+ 
+
+export async function getURLById(req, res) {
+  const id  = req.params.id;
+  console.log("search for: "+ id )
+  try {
+    const queryResponse = await connection.query(
+      `SELECT * FROM urls WHERE urls.id=$1;`
+      , [id]
+    );
+    console.log(queryResponse)
+    console.log(queryResponse.rows)
+
+    const response = {
+      id: id,
+      shortUrl: queryResponse.rows[0].short_url,
+      url: queryResponse.rows[0].url
+    };  
+
+    return res.status(200).send(response);
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+} 
 
 // export async function signUp(req, res){
 //     const hashparam = 10;
