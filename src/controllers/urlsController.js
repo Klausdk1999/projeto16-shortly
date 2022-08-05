@@ -5,8 +5,8 @@ import {nanoid} from "nanoid";
 
 export async function postURL(req, res) {
     const { url } = req.body;
-    const { id } = res.locals;
-
+    const id  = res.locals.id;
+    console.log("id locals: " + id);
     const shortUrl = nanoid(8);
 
     try {
@@ -19,18 +19,19 @@ export async function postURL(req, res) {
       return res.status(500).send(error);
     }
 } 
- 
 
 export async function getURLById(req, res) {
   const id  = req.params.id;
-  console.log("search for: "+ id )
+
   try {
     const queryResponse = await connection.query(
       `SELECT * FROM urls WHERE urls.id=$1;`
       , [id]
     );
-    console.log(queryResponse)
-    console.log(queryResponse.rows)
+   
+    if(queryResponse.rows.length<1){
+      return res.sendStatus(404);
+    }
 
     const response = {
       id: id,
@@ -39,63 +40,81 @@ export async function getURLById(req, res) {
     };  
 
     return res.status(200).send(response);
+
   } catch (error) {
     return res.status(500).send(error);
   }
 } 
 
-// export async function signUp(req, res){
-//     const hashparam = 10;
-//     const passwordEncrypt = bcrypt.hashSync(req.body.password, hashparam);
-//     const user = { ...req.body, password: passwordEncrypt};
-//     const { name, email, password } = user;
+export async function getShortURL(req, res) {
+  const shortUrl = req.params.shortUrl;
 
-//     try{
-//         if (req.body.password !== req.body.confirmPassword) {
-//           return res.status(422).send("As senhas não sao iguais");
-//         }
+  try {
+    const queryResponse = await connection.query(
+      `SELECT * FROM urls WHERE short_url= $1;`
+      , [shortUrl]
+    );
+    const view_count=queryResponse.rows[0].view_count +1;
 
-//         const { rows : userExist } = await connection.query(
-//             "SELECT * FROM users WHERE email = $1;", [user.email]
-//         );
-//         if (userExist.length !== 0){
-//             return res.sendStatus(409);
-//         }
+    await connection.query(
+      `UPDATE urls SET view_count = $1 WHERE short_url=$2;`,[view_count,shortUrl]
+    );
 
-//         await connection.query(
-//             `INSERT INTO users (name, email, password) VALUES ($1, $2, $3);`, [name, email, password]
-//         );
-//         res.sendStatus(201);
-//     }
-//     catch (error){
-//       return res.status(400).send(error);
-//     }
-// }
+    if(queryResponse.rows.length<1){
+      return res.sendStatus(404);
+    }
 
-// export async function signIn(req, res) {
-//     const { email, password } = req.body;
-  
-//     try {
-//       const { rows: user } = await connection.query(
-//         `SELECT * FROM users WHERE email = $1;`,
-//         [email]
-//       );
-  
-//       if (user.length === 0) {
-//         return res.sendStatus(401);
-//       }
-  
-//       const checkPassword = bcrypt.compareSync(password, user[0].password);
-  
-//       if (!checkPassword) {
-//         return res.sendStatus(401);
-//       }
-  
-//       const secretKey = process.env.JWT_SECRET;
-//       const token = jwt.sign({ id: user[0]._id }, secretKey);
-  
-//       return res.status(200).send({ token });
-//     } catch (error) {
-//       return res.status(400).send(error);
-//     }
-// }
+    const url= queryResponse.rows[0].url;
+
+    res.status(200).redirect(url);
+
+  } catch (error) {
+
+    return res.status(500).send(error);
+  }
+} 
+
+export async function deleteURLById(req, res) {
+  const url_id  = req.params.id;
+
+  try {
+    console.log("url_id "+url_id)
+    //verificar se url é do usuario
+    const user_id = res.locals.id;
+    console.log("user_id "+user_id)
+    const selectResponse = await connection.query(
+      `SELECT * FROM urls WHERE urls.id=$1;`
+      , [url_id]
+    );
+    console.log("selectresponse.rows "+ selectResponse.rows[0])
+    if(selectResponse.rows.length<1){
+      return res.sendStatus(404);
+    }
+    
+    let deleteResponse;
+
+    if(selectResponse.rows[0].user_id==user_id){
+      console.log("if delete passou")
+      //deletar
+      deleteResponse = await connection.query(
+        `DELETE FROM urls WHERE urls.id=$1;`
+        , [url_id]
+      );
+
+    }else{
+      return res.sendStatus(401);
+    }
+
+   console.log("deleteresponse:"+ deleteResponse)
+
+    if(deleteResponse.rowCount<1){
+      return res.sendStatus(404);
+    }
+
+    return res.sendStatus(200);
+
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+} 
+

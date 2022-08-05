@@ -9,6 +9,7 @@ export async function tokenValidation(req, res, next) {
     const { id } = jwt.verify(token, secretKey);
 
     res.locals.id = id;
+
     next();
   } catch (error) {
     return res.status(401).send(error);
