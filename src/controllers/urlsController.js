@@ -146,7 +146,7 @@ export async function getUser(req, res) {
     if(selectedUser.rows.length<1){
       return res.sendStatus(404);
     }
-    
+
     const rows=shortenedUrls.rows;
 
     const responseObject={
@@ -164,46 +164,15 @@ export async function getUser(req, res) {
 } 
 
 export async function getRanking(req, res) {
-//   const url_id  = req.params.id;
+  try {
+    const usersRank = await connection.query(
+      `SELECT us.id,us.name,SUM(ur.view_count) as "VisitCount",COUNT(ur.id) as "linksCount" FROM urls ur LEFT JOIN users us ON ur.user_id=us.id GROUP BY us.id ORDER BY "VisitCount" DESC LIMIT 10;`
+    );
 
-//   try {
-//     console.log("url_id "+url_id)
-//     //verificar se url é do usuario
-//     const user_id = res.locals.id;
-//     console.log("user_id "+user_id)
-//     const selectResponse = await connection.query(
-//       `SELECT * FROM urls WHERE urls.id=$1;`
-//       , [user_id]
-//     );
-//     console.log("selectresponse.rows "+ selectResponse.rows[0])
-//     if(selectResponse.rows.length<1){
-//       return res.sendStatus(404);
-//     }
+    return res.status(200).send(usersRank.rows);
 
-//     let deleteResponse;
-
-//     if(selectResponse.rows[0].user_id==user_id){
-//       console.log("if delete passou")
-//       //deletar
-//       deleteResponse = await connection.query(
-//         `DELETE FROM urls WHERE urls.id=$1;`
-//         , [url_id]
-//       );
-
-//     }else{
-//       return res.sendStatus(401);
-//     }
-
-//    console.log("deleteresponse:"+ deleteResponse)
-
-//     if(deleteResponse.rowCount<1){
-//       return res.sendStatus(404);
-//     }
-
-//     return res.sendStatus(200);
-
-//   } catch (error) {
-//     return res.status(500).send(error);
-//   }
+  } catch (error) {
+    return res.status(500).send(error);
+  }
 } 
 
