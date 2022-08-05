@@ -135,7 +135,7 @@ export async function getUser(req, res) {
     let visitCount=0;
 
     for(let i=0;i<shortenedUrls.rows.length;i++){
-      visitCount = visitCount + shortenedUrls.rows[i].view_count;
+      visitCount = visitCount + shortenedUrls.rows[i].visitCount;
     }
 
     const selectedUser = await connection.query(
