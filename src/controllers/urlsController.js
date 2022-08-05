@@ -135,7 +135,7 @@ export async function getUser(req, res) {
     let visitCount=0;
 
     for(let i=0;i<shortenedUrls.rows.length;i++){
-      visitCount += shortenedUrls.rows[i].visit_count;
+      visitCount = visitCount + shortenedUrls.rows[i].view_count;
     }
 
     const selectedUser = await connection.query(
@@ -166,7 +166,7 @@ export async function getUser(req, res) {
 export async function getRanking(req, res) {
   try {
     const usersRank = await connection.query(
-      `SELECT us.id,us.name,SUM(ur.view_count) as "VisitCount",COUNT(ur.id) as "linksCount" FROM urls ur LEFT JOIN users us ON ur.user_id=us.id GROUP BY us.id ORDER BY "VisitCount" DESC LIMIT 10;`
+      `SELECT us.id,us.name,SUM(ur.view_count) as "VisitCount",COALESCE(COUNT(ur.id),0) as "linksCount" FROM urls ur LEFT JOIN users us ON ur.user_id=us.id GROUP BY us.id ORDER BY "VisitCount" DESC LIMIT 10;`
     );
 
     return res.status(200).send(usersRank.rows);
