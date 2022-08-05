@@ -29,10 +29,3 @@ export default connection;
 // const connection = new Pool(databaseConfig);
 
 // export default connection;
-
-//import dotenv from "dotenv";
-
-// connectionString: process.env.DATABASE_URL,
-// ssl:{
-//          rejectUnautorized: false
-//}

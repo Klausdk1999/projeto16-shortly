@@ -166,7 +166,7 @@ export async function getUser(req, res) {
 export async function getRanking(req, res) {
   try {
     const usersRank = await connection.query(
-      `SELECT us.id,us.name,SUM(ur.view_count) as "VisitCount",COALESCE(COUNT(ur.id),0) as "linksCount" FROM urls ur LEFT JOIN users us ON ur.user_id=us.id GROUP BY us.id ORDER BY "VisitCount" DESC LIMIT 10;`
+      `SELECT us.id,us.name,COALESCE(SUM(ur.view_count),0) as "VisitCount",COALESCE(COUNT(ur.id),0) as "linksCount" FROM users us LEFT JOIN urls ur ON ur.user_id=us.id GROUP BY us.id ORDER BY "VisitCount" DESC LIMIT 10;`
     );
 
     return res.status(200).send(usersRank.rows);
