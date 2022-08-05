@@ -15,4 +15,4 @@ app.use(userRouter);
 app.use(urlRouter);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, ()=> console.log('Servidor Online'));
+app.listen(PORT, ()=>  console.log("Server running on port " + process.env.PORT));
