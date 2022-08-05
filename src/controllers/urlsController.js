@@ -124,7 +124,7 @@ export async function getUser(req, res) {
     const user_id = res.locals.id;
     
     const shortenedUrls = await connection.query(
-      `SELECT * FROM urls WHERE urls.user_id=$1;`
+      `SELECT id,short_url as "shortUrl",url,view_count as "visitCount" FROM urls WHERE urls.user_id=$1;`
       , [user_id]
     );
 
