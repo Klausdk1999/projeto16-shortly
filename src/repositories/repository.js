@@ -40,13 +40,6 @@ async function getUrlsByUser(user_id) {
     );
 }
 
-async function deleteById(url_id) {
-	return connection.query(
-        `DELETE FROM urls WHERE urls.id=$1;`
-        , [url_id]
-      );
-}
-
 async function getUserById(user_id) {
 	return connection.query(
         `SELECT * FROM users WHERE users.id=$1;`
