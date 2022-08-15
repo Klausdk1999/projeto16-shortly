@@ -21,7 +21,7 @@ async function getByShortUrl(shortUrl) {
 }
 
 async function updateViewCount(view_count,shortUrl) {
-	connection.query(
+	return connection.query(
         `UPDATE urls SET view_count = $1 WHERE short_url=$2;`,[view_count,shortUrl]
     );
 }
@@ -34,7 +34,7 @@ async function deleteById(url_id) {
 }
 
 async function getUrlsByUser(user_id) {
-	connection.query(
+	return connection.query(
         `SELECT id,short_url as "shortUrl",url,view_count as "visitCount" FROM urls WHERE urls.user_id=$1;`
         , [user_id]
     );
